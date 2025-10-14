@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake Magnitude Predictor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.2.0/tf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.2/plotly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Earthquake Magnitude Predictor</h1>
+            <p>Predict earthquake magnitudes using Machine learning Algorithms :
+                By Abd Rahim Mojbani / Taib Hamada / Abdallah Ghalleb / Hedi Foughali / Ahmed Mabrouk
+            </p>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="predictor">Prediction Tool</button>
+                <button class="tab-button" data-tab="visualizer">Data Visualization</button>
+                <button class="tab-button" data-tab="about">About</button>
+            </div>
+        </div>
+        
+        <div id="predictor" class="tab-content active">
+            <div class="columns">
+                <div class="column">
+                    <div class="card">
+                        <div class="card-header">Predict Earthquake Magnitude</div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="latitude">Latitude:</label>
+                                <input type="number" id="latitude" class="form-control" step="0.00001" min="-90" max="90" placeholder="Enter latitude (-90 to 90)">
+                            </div>
+                            <div class="form-group">
+                                <label for="longitude">Longitude:</label>
+                                <input type="number" id="longitude" class="form-control" step="0.00001" min="-180" max="180" placeholder="Enter longitude (-180 to 180)">
+                            </div>
+                            <div class="form-group">
+                                <label for="depth">Depth (km):</label>
+                                <input type="number" id="depth" class="form-control" step="0.1" min="0" placeholder="Enter depth in kilometers">
+                            </div>
+                            <button id="predictBtn" class="btn">
+                                <span id="predictSpinner" class="spinner hidden"></span>
+                                Predict Magnitude
+                            </button>
+                            <button id="mapSelectBtn" class="btn btn-secondary">Select on Map</button>
+                            
+                            <div id="resultBox" class="result-box">
+                                <h3>Predicted Magnitude:</h3>
+                                <div class="magnitudeCircle" id="magnitudeValue">--</div>
+                                <div class="interpretation" id="interpretation"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column">
+                    <div class="card">
+                        <div class="card-header">Location Map</div>
+                        <div class="card-body">
+                            <div id="map"></div>
+                            <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                                <i>Click on the map to set latitude and longitude values</i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="visualizer" class="tab-content">
+            <div class="card">
+                <div class="card-header">Earthquake Data Visualization</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="dataUpload">Upload Earthquake Data (CSV):</label>
+                        <input type="file" id="dataUpload" accept=".csv" class="form-control">
+                    </div>
+                    <button id="visualizeBtn" class="btn">
+                        <span id="visualizeSpinner" class="spinner hidden"></span>
+                        Visualize Data
+                    </button>
+                    <button id="loadSampleBtn" class="btn btn-secondary">Load Sample Data</button>
+                    
+                    <div class="columns" style="margin-top: 20px;">
+                        <div class="column">
+                            <h3>Global Distribution</h3>
+                            <div id="heatmapChart"></div>
+                        </div>
+                        <div class="column">
+                            <h3>Magnitude Distribution</h3>
+                            <div id="magnitudeDistChart"></div>
+                        </div>
+                    </div>
+                    
+                    <h3>Recent Earthquakes</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table id="earthquakeDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Magnitude</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Depth (km)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="earthquakeTableBody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">No data loaded</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="about" class="tab-content">
+            <div class="card">
+                <div class="card-header">About This Tool</div>
+                <div class="card-body">
+                    <h3>Earthquake Magnitude Predictor</h3>
+                    <p>
+                        This tool uses a trained neural network model to predict earthquake magnitudes based on geographical coordinates and depth. 
+                        The model was built using TensorFlow and trained on historical earthquake data from the USGS earthquake catalog.
+                    </p>
+                    
+                    <h3>How It Works</h3>
+                    <p>
+                        The prediction model utilizes a deep learning architecture with multiple layers to identify complex patterns in earthquake data.
+                        It takes three input parameters:
+                    </p>
+                    <ul>
+                        <li><strong>Latitude</strong>: Geographic latitude (-90° to 90°)</li>
+                        <li><strong>Longitude</strong>: Geographic longitude (-180° to 180°)</li>
+                        <li><strong>Depth</strong>: Depth below the Earth's surface in kilometers</li>
+                    </ul>
+                    
+                    <h3>Data Sources</h3>
+                    <p>
+                        The model was trained using earthquake data from the United States Geological Survey (USGS) API, 
+                        focusing on earthquakes with magnitudes of 4.0 and above. The training data includes global earthquake events.
+                    </p>
+                    
+                    <h3>Model Performance</h3>
+                    <p>
+                        The current model achieves the following performance metrics on test data:
+                    </p>
+                    <ul>
+                        <li>Mean Absolute Error (MAE): 0.2371</li>
+                        <li>Root Mean Squared Error (RMSE): 0.3087</li>
+                        <li>R² Score: 0.6003</li>
+                    </ul>
+                    
+                    <p>
+                        <i>Note:</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/model.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
